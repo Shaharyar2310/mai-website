@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Book & Movie Explorer</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav>
+      <div class="nav-links">
+        <a href="/landing/index.html">
+          <span class="nav-icon">🎬</span>Movies
+        </a>
+        <a href="#" class="active"> <span class="nav-icon">📚</span>Books </a>
+      </div>
+      <div class="auth-section">
+        <div id="google-signin" class="google-btn" style="display: block">
+          <img
+            src="https://developers.google.com/identity/images/g-logo.png"
+            alt="Google"
+            class="google-icon"
+          />
+          Sign in with Google
+        </div>
+        <div id="user-info" style="display: none">
+          <span id="user-name">User</span>
+          <button id="logout-btn" class="logout-btn">Logout</button>
+        </div>
+      </div>
+    </nav>
+
+    <header>
+      <h1>Book & Movie Explorer</h1>
+      <p class="subtitle">
+        Discover amazing books and expand your reading horizons
+      </p>
+    </header>
+
+    <main>
+      <!-- Book Section -->
+      <section id="books-section">
+        <h2>Explore Books by Category</h2>
+        <div id="book-categories">
+          <button data-category="horror">Horror</button>
+          <button data-category="fantasy">Fantasy</button>
+          <button data-category="romance">Romance</button>
+          <button data-category="science">Science</button>
+          <button data-category="history">History</button>
+          <button data-category="biography">Biography</button>
+        </div>
+
+        <div class="search-filter-container">
+          <div class="search-input-wrapper">
+            <input
+              type="search"
+              id="book-search"
+              placeholder="Search books by title, author, or keyword..."
+              aria-label="Search books"
+            />
+          </div>
+          <select id="book-filter" aria-label="Filter books">
+            <option value="all">All Books</option>
+            <option value="bestseller">Bestsellers</option>
+            <option value="newest">Newest</option>
+            <option value="rating">Highest Rated</option>
+            <option value="free">Free eBooks</option>
+          </select>
+        </div>
+
+        <!-- Advanced Filters -->
+        <div class="advanced-filters" id="advanced-filters" style="display: none;">
+          <div class="filter-row">
+            <select id="year-filter">
+              <option value="">All Years</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+            </select>
+            <select id="language-filter">
+              <option value="">All Languages</option>
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+              <option value="de">German</option>
+            </select>
+            <input type="number" id="pages-filter" placeholder="Min Pages" min="0">
+          </div>
+          <button id="apply-filters" class="apply-filters-btn">Apply Filters</button>
+        </div>
+
+        <div class="controls-bar">
+          <button id="toggle-advanced" class="toggle-btn">Advanced Filters</button>
+        </div>
+
+        <div id="loader" style="display: none">Loading books...</div>
+        <div
+          id="books-container"
+          tabindex="0"
+          aria-live="polite"
+          aria-busy="false"
+        ></div>
+      </section>
+
+      <!-- Modal for book details -->
+      <div
+        id="modal-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+        tabindex="-1"
+      >
+        <div id="modal-content">
+          <button class="modal-close" id="modal-close-btn" aria-label="Close book details">
+            &times;
+          </button>
+          <h2 id="modal-title"></h2>
+          <img id="modal-cover" alt="" />
+          <p id="modal-description"></p>
+          <p id="modal-preview-link"></p>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>About Book Explorer</h3>
+          <p>
+            Discover amazing books and expand your reading horizons. Your
+            ultimate destination for book recommendations and literary
+            exploration.
+          </p>
+        </div>
+        <div class="footer-section">
+          <h3>Features</h3>
+          <ul>
+            <li>Browse by category</li>
+            <li>Search books</li>
+            <li>Popular collections</li>
+            <li>Read previews</li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Contact</h3>
+          <p>Email: info@bookexplorer.com</p>
+          <p>Phone: +1 (555) 987-6543</p>
+          <div class="social-links">
+            <a href="#" class="social-link" aria-label="Facebook">📘</a>
+            <a href="#" class="social-link" aria-label="Twitter">🐦</a>
+            <a href="#" class="social-link" aria-label="Instagram">📷</a>
+            <a href="#" class="social-link" aria-label="YouTube">📺</a>
+            <a href="#" class="social-link" aria-label="LinkedIn">💼</a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h3>Settings</h3>
+          <div class="settings-section">
+            <div class="theme-toggle">
+              <span class="settings-label">Dark Mode</span>
+              <div class="toggle-switch" id="dark-mode-toggle">
+                <div class="toggle-slider"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>
+          &copy; 2024 Book Explorer. All rights reserved. | Privacy Policy |
+          Terms of Service
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="/landing/book-script.js"></script>
+  </body>
+</html>

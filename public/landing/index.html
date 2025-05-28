@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Movie Explorer</title>
+<link href="/landing/style.css" rel="stylesheet" />
+</head>
+<body>
+  <nav>
+    <div class="nav-links">
+      <a href="#" class="active">
+        <span class="nav-icon">🎬</span>Movies
+      </a>
+      <a href="/landing/book_categories_app.html">
+        <span class="nav-icon">📚</span>Books
+      </a>
+    </div>
+    <div class="auth-section">
+      <div id="google-signin" class="google-btn" style="display: block;">
+        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="google-icon">
+        Sign in with Google
+      </div>
+      <div id="user-info" style="display: none;">
+        <span id="user-name">User</span>
+        <button id="logout-btn" class="logout-btn">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <header>
+    <h1>Movie Explorer</h1>
+    <p class="subtitle">Discover amazing movies and explore endless entertainment</p>
+  </header>
+
+  <main>
+    <section id="movies-section">
+      <h2>Explore Movies</h2>
+      <div class="search-filter-container">
+          <div class="search-input-wrapper">
+            <input
+              type="search"
+              id="movie-search"
+              placeholder="Search movies by title or keyword..."
+              aria-label="Search movies"
+            />
+          </div>
+          <select id="movie-filter" aria-label="Filter movies">
+            <option value="all">All Movies</option>
+            <option value="popular">Popular</option>
+            <option value="top_rated">Top Rated</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="now_playing">Now Playing</option>
+            <option value="year_2024">2024 Movies</option>
+            <option value="year_2023">2023 Movies</option>
+            <option value="high_rated">8+ Rating</option>
+          </select>
+        </div>
+
+        <!-- Advanced Filters -->
+        <div class="advanced-filters" id="advanced-filters" style="display: none;">
+          <div class="filter-row">
+            <select id="year-filter">
+              <option value="">All Years</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+            </select>
+            <select id="rating-filter">
+              <option value="">All Ratings</option>
+              <option value="9">9+ Rating</option>
+              <option value="8">8+ Rating</option>
+              <option value="7">7+ Rating</option>
+              <option value="6">6+ Rating</option>
+            </select>
+            <select id="genre-filter-advanced">
+              <option value="">All Genres</option>
+              <option value="28">Action</option>
+              <option value="35">Comedy</option>
+              <option value="18">Drama</option>
+              <option value="878">Sci-Fi</option>
+              <option value="27">Horror</option>
+            </select>
+          </div>
+          <button id="apply-filters" class="apply-filters-btn">Apply Filters</button>
+        </div>
+
+        <div class="controls-bar">
+          <button id="toggle-advanced" class="toggle-btn">Advanced Filters</button>
+        </div>
+
+      <div id="movie-categories" role="list" aria-label="Movie categories">
+        <button data-genre-id="" class="active">All</button>
+        <button data-genre-id="12">Adventure</button>
+        <button data-genre-id="16">Animation</button>
+      </div>
+
+      <div id="movies-loader">Loading movies...</div>
+      <div id="movies-container" tabindex="0" aria-live="polite" aria-busy="false"></div>
+
+      <div id="randomize-container" style="text-align: center; margin: 20px 0;">
+        <button id="randomize-button">Randomize Movies</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>About Movie Explorer</h3>
+        <p>Discover amazing movies and explore endless entertainment. Your go-to platform for movie recommendations and reviews.</p>
+      </div>
+      <div class="footer-section">
+        <h3>Features</h3>
+        <ul>
+          <li>Browse by genre</li>
+          <li>Search movies</li>
+          <li>Filter by rating</li>
+          <li>Watch trailers</li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Contact</h3>
+        <p>Email: info@movieexplorer.com</p>
+        <p>Phone: +1 (555) 123-4567</p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="Facebook">📘</a>
+          <a href="#" class="social-link" aria-label="Twitter">🐦</a>
+          <a href="#" class="social-link" aria-label="Instagram">📷</a>
+          <a href="#" class="social-link" aria-label="YouTube">📺</a>
+          <a href="#" class="social-link" aria-label="LinkedIn">💼</a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h3>Settings</h3>
+        <div class="settings-section">
+          <div class="theme-toggle">
+            <span class="settings-label">Dark Mode</span>
+            <div class="toggle-switch" id="dark-mode-toggle">
+              <div class="toggle-slider"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 Movie Explorer. All rights reserved. | Privacy Policy | Terms of Service</p>
+    </div>
+  </footer>
+
+  <div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+    <div id="modal-content">
+      <button class="modal-close" id="modal-close-btn" aria-label="Close details">&times;</button>
+      <h2 id="modal-title"></h2>
+      <div id="modal-meta" class="meta"></div>
+      <img id="modal-cover" alt="" />
+      <p id="modal-description"></p>
+      <div id="modal-trailer">
+        <iframe id="trailer-iframe" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="/landing/script.js"></script>
+</body>
+</html>
