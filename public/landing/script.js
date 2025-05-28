@@ -1,5 +1,5 @@
-let MOVIE_API_KEY = "";
-let GOOGLE_CLIENT_ID = "";
+let MOVIE_API_KEY = "ed103f0b096e2342ceea2741dd22538b";
+let GOOGLE_CLIENT_ID = "481648255761-lq04us3kevscscjc9eggq66j0fifh0b9.apps.googleusercontent.com";
 
 // Fetch configuration from server
 async function loadConfig() {
