@@ -1,5 +1,5 @@
-let GOOGLE_BOOKS_API_KEY = "";
-let GOOGLE_CLIENT_ID = "";
+let GOOGLE_BOOKS_API_KEY = "AIzaSyCz1TT6JWVknpQ-9otI_FZBtymk071MVRQ";
+let GOOGLE_CLIENT_ID = "481648255761-lq04us3kevscscjc9eggq66j0fifh0b9.apps.googleusercontent.com";
 
 // Fetch configuration from server
 async function loadConfig() {
