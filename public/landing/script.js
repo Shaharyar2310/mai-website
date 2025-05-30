@@ -599,3 +599,92 @@ function hideMoviesLoader() {
   moviesLoader.style.display = 'none';
   moviesContainer.style.display = 'grid';
 }
+// Hamburger menu functionality
+function initMobileMenu() {
+  const hamburgerMenu = document.getElementById('hamburger-menu');
+  const mobileNav = document.getElementById('mobile-nav');
+
+  if (hamburgerMenu && mobileNav) {
+    hamburgerMenu.addEventListener('click', () => {
+      mobileNav.classList.toggle('open');
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!hamburgerMenu.contains(e.target) && !mobileNav.contains(e.target)) {
+        mobileNav.classList.remove('open');
+      }
+    });
+
+    // Sync auth state between desktop and mobile
+    const mobileGoogleSignin = document.getElementById('mobile-google-signin');
+    const mobileUserInfo = document.getElementById('mobile-user-info');
+    const mobileUserName = document.getElementById('mobile-user-name');
+    const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+
+    if (mobileGoogleSignin) {
+      mobileGoogleSignin.addEventListener('click', () => {
+        document.getElementById('google-signin').click();
+      });
+    }
+
+    if (mobileLogoutBtn) {
+      mobileLogoutBtn.addEventListener('click', () => {
+        document.getElementById('logout-btn').click();
+      });
+    }
+
+    // Sync user state
+    function syncMobileAuth() {
+      const desktopSignin = document.getElementById('google-signin');
+      const desktopUserInfo = document.getElementById('user-info');
+      const desktopUserName = document.getElementById('user-name');
+
+      if (mobileGoogleSignin && mobileUserInfo) {
+        mobileGoogleSignin.style.display = desktopSignin.style.display;
+        mobileUserInfo.style.display = desktopUserInfo.style.display;
+        if (mobileUserName) {
+          mobileUserName.textContent = desktopUserName.textContent;
+        }
+      }
+    }
+
+    // Observe changes to sync auth state
+    const observer = new MutationObserver(syncMobileAuth);
+    const desktopAuth = document.querySelector('.auth-section');
+    if (desktopAuth) {
+      observer.observe(desktopAuth, { childList: true, subtree: true, attributes: true });
+    }
+  }
+}
+
+// Initialize the app
+document.addEventListener('DOMContentLoaded', async function() {
+  await loadConfig();
+
+  initDarkMode();
+  initMobileMenu();
+
+  // Load some default movies on page load
+  setTimeout(() => {
+    fetchMovies({ category: 'popular' });
+  }, 1000);
+
+  // Initialize Google Auth with retry
+  let retryCount = 0;
+  const maxRetries = 5;
+
+  function tryInitGoogleAuth() {
+    if (typeof google !== 'undefined' && google.accounts) {
+      initGoogleAuth();
+    } else if (retryCount < maxRetries) {
+      retryCount++;
+      setTimeout(tryInitGoogleAuth, 1000);
+    } else {
+      console.log('Google Identity Services could not be loaded after multiple attempts');
+    }
+  }
+
+  setTimeout(tryInitGoogleAuth, 1000);
+  console.log('Movie Explorer script loaded');
+});

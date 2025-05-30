@@ -28,6 +28,17 @@ const playerContainer = document.getElementById('music-player-container');
 
 // Maps to store music info
 let musicMap = {};
+let currentMusicResults = [];
+
+// Utility shuffle function to randomize array elements
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
 
 function showLoader() {
   loader.style.display = 'block';
@@ -104,6 +115,7 @@ async function searchMusic({ query = '', genre = null } = {}) {
 
     const data = await response.json();
     const items = data.results || [];
+    currentMusicResults = items;
     renderMusic(items, musicContainer);
   } catch (error) {
     console.error('Error fetching music:', error);
@@ -112,7 +124,8 @@ async function searchMusic({ query = '', genre = null } = {}) {
       const fallbackUrl = `https://itunes.apple.com/search?term=top%20songs&media=music&entity=song&limit=20`;
       const fallbackResponse = await fetch(fallbackUrl);
       const fallbackData = await fallbackResponse.json();
-      renderMusic(fallbackData.results || [], musicContainer);
+      currentMusicResults = fallbackData.results || [];
+      renderMusic(currentMusicResults, musicContainer);
     } catch (fallbackError) {
       musicContainer.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:red;">Error fetching music. Please try again later.</p>`;
     }
@@ -262,6 +275,29 @@ function clearActiveCategory() {
   buttons.forEach(btn => btn.classList.remove('active'));
 }
 
+// Randomize button functionality
+const randomizeButton = document.getElementById('randomize-button');
+if (randomizeButton) {
+  randomizeButton.addEventListener('click', () => {
+    // Array of random search terms to discover new music
+    const randomSearchTerms = [
+      'top hits 2024', 'indie rock', 'chill vibes', 'acoustic songs', 
+      'dance music', 'alternative rock', 'soul music', 'R&B hits',
+      'folk songs', 'blues music', 'reggae', 'country hits',
+      'world music', 'jazz fusion', 'ambient music', 'new releases',
+      'classic rock', 'pop anthems', 'electronic beats', 'live sessions'
+    ];
+    
+    // Pick a random search term
+    const randomTerm = randomSearchTerms[Math.floor(Math.random() * randomSearchTerms.length)];
+    
+    // Clear active category and search for new music
+    clearActiveCategory();
+    searchInput.value = '';
+    searchMusic({ query: randomTerm });
+  });
+}
+
 // Google Auth functions
 function initGoogleAuth() {
   if (typeof google !== 'undefined' && google.accounts && GOOGLE_CLIENT_ID) {
@@ -363,11 +399,71 @@ function initDarkMode() {
   }
 }
 
+// Hamburger menu functionality
+function initMobileMenu() {
+  const hamburgerMenu = document.getElementById('hamburger-menu');
+  const mobileNav = document.getElementById('mobile-nav');
+  
+  if (hamburgerMenu && mobileNav) {
+    hamburgerMenu.addEventListener('click', () => {
+      mobileNav.classList.toggle('open');
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!hamburgerMenu.contains(e.target) && !mobileNav.contains(e.target)) {
+        mobileNav.classList.remove('open');
+      }
+    });
+
+    // Sync auth state between desktop and mobile
+    const mobileGoogleSignin = document.getElementById('mobile-google-signin');
+    const mobileUserInfo = document.getElementById('mobile-user-info');
+    const mobileUserName = document.getElementById('mobile-user-name');
+    const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+
+    if (mobileGoogleSignin) {
+      mobileGoogleSignin.addEventListener('click', () => {
+        document.getElementById('google-signin').click();
+      });
+    }
+
+    if (mobileLogoutBtn) {
+      mobileLogoutBtn.addEventListener('click', () => {
+        document.getElementById('logout-btn').click();
+      });
+    }
+
+    // Sync user state
+    function syncMobileAuth() {
+      const desktopSignin = document.getElementById('google-signin');
+      const desktopUserInfo = document.getElementById('user-info');
+      const desktopUserName = document.getElementById('user-name');
+
+      if (mobileGoogleSignin && mobileUserInfo) {
+        mobileGoogleSignin.style.display = desktopSignin.style.display;
+        mobileUserInfo.style.display = desktopUserInfo.style.display;
+        if (mobileUserName) {
+          mobileUserName.textContent = desktopUserName.textContent;
+        }
+      }
+    }
+
+    // Observe changes to sync auth state
+    const observer = new MutationObserver(syncMobileAuth);
+    const desktopAuth = document.querySelector('.auth-section');
+    if (desktopAuth) {
+      observer.observe(desktopAuth, { childList: true, subtree: true, attributes: true });
+    }
+  }
+}
+
 // Initialize the app
 document.addEventListener('DOMContentLoaded', async function() {
   await loadConfig();
 
   initDarkMode();
+  initMobileMenu();
 
   // Load some default music
   setTimeout(() => {

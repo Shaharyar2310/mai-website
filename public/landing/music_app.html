@@ -10,6 +10,9 @@
   </head>
   <body>
     <nav>
+      <div class="nav-brand">
+        <span class="brand-name">PreviewVerse</span>
+      </div>
       <div class="nav-links">
         <a href="/landing/index.html">
           <span class="nav-icon">🎬</span>Movies
@@ -34,7 +37,33 @@
           <span id="user-name">User</span>
           <button id="logout-btn" class="logout-btn">Logout</button>
         </div>
-      </div></nav>
+      </div>
+      <div class="hamburger-menu" id="hamburger-menu">
+        <div class="hamburger-line"></div>
+        <div class="hamburger-line"></div>
+        <div class="hamburger-line"></div>
+      </div>
+      <div class="mobile-nav" id="mobile-nav">
+        <a href="/landing/index.html">
+          <span class="nav-icon">🎬</span>Movies
+        </a>
+        <a href="/landing/book_categories_app.html">
+          <span class="nav-icon">📚</span>Books
+        </a>
+        <a href="#" class="active">
+          <span class="nav-icon">🎵</span>Music
+        </a>
+        <div class="auth-section">
+          <div id="mobile-google-signin" class="google-btn" style="display: block;">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" class="google-icon">
+            Sign in with Google
+          </div>
+          <div id="mobile-user-info" style="display: none;">
+            <span id="mobile-user-name">User</span>
+            <button id="mobile-logout-btn" class="logout-btn">Logout</button>
+          </div>
+        </div>
+      </div>
     </nav>
 
     <header>
@@ -84,7 +113,9 @@
           aria-busy="false"
         ></div>
       </section>
-
+      <div id="randomize-container" style="text-align: center; margin: 20px 0;">
+          <button id="randomize-button">Randomize Music</button>
+        </div>
       <!-- Modal for music details -->
       <div
         id="music-modal-overlay"
