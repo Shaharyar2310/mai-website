@@ -1,0 +1,161 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Book & Movie Explorer - Music</title>
+    <link rel="stylesheet" href="/landing/style.css" />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+  <body>
+    <nav>
+      <div class="nav-links">
+        <a href="/landing/index.html">
+          <span class="nav-icon">🎬</span>Movies
+        </a>
+        <a href="/landing/book_categories_app.html">
+          <span class="nav-icon">📚</span>Books
+        </a>
+        <a href="#" class="active">
+          <span class="nav-icon">🎵</span>Music
+        </a>
+      </div>
+      <div class="auth-section">
+        <div id="google-signin" class="google-btn" style="display: block">
+          <img
+            src="https://developers.google.com/identity/images/g-logo.png"
+            alt="Google"
+            class="google-icon"
+          />
+          Sign in with Google
+        </div>
+        <div id="user-info" style="display: none">
+          <span id="user-name">User</span>
+          <button id="logout-btn" class="logout-btn">Logout</button>
+        </div>
+      </div></nav>
+    </nav>
+
+    <header>
+      <h1>Book & Movie Explorer</h1>
+      <p class="subtitle">
+        Discover amazing music and expand your musical horizons
+      </p>
+    </header>
+
+    <main>
+      <!-- Music Section -->
+      <section id="music-section">
+        <h2>Explore Music by Genre</h2>
+        <div id="music-categories">
+          <button data-genre="pop">Pop</button>
+          <button data-genre="rock">Rock</button>
+          <button data-genre="hip-hop">Hip-Hop</button>
+          <button data-genre="jazz">Jazz</button>
+          <button data-genre="classical">Classical</button>
+          <button data-genre="electronic">Electronic</button>
+        </div>
+
+        <div class="search-filter-container">
+          <div class="search-input-wrapper">
+            <input
+              type="search"
+              id="music-search"
+              placeholder="Search music by artist, track, or album..."
+              aria-label="Search music"
+            />
+          </div>
+          <select id="music-filter" aria-label="Filter music">
+            <option value="track">Tracks</option>
+            <option value="album">Albums</option>
+            <option value="artist">Artists</option>
+            <option value="playlist">Playlists</option>
+          </select>
+        </div>
+
+        
+
+        <div id="music-loader" style="display: none">Loading music...</div>
+        <div
+          id="music-container"
+          tabindex="0"
+          aria-live="polite"
+          aria-busy="false"
+        ></div>
+      </section>
+
+      <!-- Modal for music details -->
+      <div
+        id="music-modal-overlay"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="music-modal-title"
+        tabindex="-1"
+      >
+        <div id="music-modal-content">
+          <button class="modal-close" id="music-modal-close-btn" aria-label="Close music details">
+            &times;
+          </button>
+          <h2 id="music-modal-title"></h2>
+          <img id="music-modal-cover" alt="" />
+          <div id="music-modal-info"></div>
+          <div id="music-player-container"></div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>About Music Explorer</h3>
+          <p>
+            Discover amazing music and expand your musical horizons. Your
+            ultimate destination for music recommendations and discovery.
+          </p>
+        </div>
+        <div class="footer-section">
+          <h3>Features</h3>
+          <ul>
+            <li>Browse by genre</li>
+            <li>Search music</li>
+            <li>Listen to previews</li>
+            <li>Connect with Spotify</li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Contact</h3>
+          <p>Email: info@musicexplorer.com</p>
+          <p>Phone: +1 (555) 987-6543</p>
+          <div class="social-links">
+            <a href="#" class="social-link" aria-label="Facebook">📘</a>
+            <a href="#" class="social-link" aria-label="Twitter">🐦</a>
+            <a href="#" class="social-link" aria-label="Instagram">📷</a>
+            <a href="#" class="social-link" aria-label="YouTube">📺</a>
+            <a href="#" class="social-link" aria-label="LinkedIn">💼</a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h3>Settings</h3>
+          <div class="settings-section">
+            <div class="theme-toggle">
+              <span class="settings-label">Dark Mode</span>
+              <div class="toggle-switch" id="dark-mode-toggle">
+                <div class="toggle-slider"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>
+          &copy; 2024 Music Explorer. All rights reserved. | Privacy Policy |
+          Terms of Service
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="/landing/music-script.js"></script>
+  </body>
+</html>
