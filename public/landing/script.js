@@ -537,7 +537,6 @@ function initDarkMode() {
   });
 }
 
-// Removed favorites and ratings functionality
 
 // Initialize page when DOM is loaded
 document.addEventListener('DOMContentLoaded', async function() {
@@ -568,7 +567,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   }, 1000);
 });
 
-// Removed favorites and rating functionality
 
 // Advanced filters
 function applyAdvancedFilters() {

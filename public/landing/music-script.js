@@ -15,7 +15,6 @@ async function loadConfig() {
 const categoriesContainer = document.getElementById('music-categories');
 const musicContainer = document.getElementById('music-container');
 const searchInput = document.getElementById('music-search');
-const musicFilter = document.getElementById('music-filter');
 const loader = document.getElementById('music-loader');
 
 // Modal elements
@@ -96,14 +95,25 @@ function formatDuration(ms) {
 // Search music using iTunes API (CORS-friendly)
 async function searchMusic({ query = '', genre = null } = {}) {
   let searchQuery = query;
+  
+  // Enhanced genre mapping for better results
   if (genre && !query) {
-    searchQuery = genre;
+    const genreMap = {
+      'pop': 'pop music hits',
+      'rock': 'rock music hits',
+      'hip-hop': 'hip hop rap music',
+      'jazz': 'jazz music instrumental',
+      'classical': 'classical music orchestra',
+      'electronic': 'electronic dance music edm'
+    };
+    searchQuery = genreMap[genre] || genre;
   }
+  
   if (!searchQuery) {
     searchQuery = 'popular music'; // Default search
   }
 
-  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(searchQuery)}&media=music&entity=song&limit=20`;
+  const url = `https://itunes.apple.com/search?term=${encodeURIComponent(searchQuery)}&media=music&entity=song&limit=50`;
 
   showLoader();
   try {
@@ -114,7 +124,34 @@ async function searchMusic({ query = '', genre = null } = {}) {
     }
 
     const data = await response.json();
-    const items = data.results || [];
+    let items = data.results || [];
+    
+    // Filter results by genre if a specific genre was requested
+    if (genre && !query) {
+      items = items.filter(item => {
+        const itemGenre = (item.primaryGenreName || '').toLowerCase();
+        const searchGenre = genre.toLowerCase();
+        
+        // Genre matching logic
+        switch (searchGenre) {
+          case 'pop':
+            return itemGenre.includes('pop') || itemGenre.includes('dance');
+          case 'rock':
+            return itemGenre.includes('rock') || itemGenre.includes('alternative') || itemGenre.includes('metal');
+          case 'hip-hop':
+            return itemGenre.includes('hip') || itemGenre.includes('rap') || itemGenre.includes('r&b');
+          case 'jazz':
+            return itemGenre.includes('jazz') || itemGenre.includes('blues');
+          case 'classical':
+            return itemGenre.includes('classical') || itemGenre.includes('orchestra') || itemGenre.includes('opera');
+          case 'electronic':
+            return itemGenre.includes('electronic') || itemGenre.includes('dance') || itemGenre.includes('techno') || itemGenre.includes('house');
+          default:
+            return true;
+        }
+      });
+    }
+    
     currentMusicResults = items;
     renderMusic(items, musicContainer);
   } catch (error) {
