@@ -1,5 +1,15 @@
-let MOVIE_API_KEY = "ed103f0b096e2342ceea2741dd22538b";
-let GOOGLE_CLIENT_ID = "481648255761-bl78pb4mc68apus76vg3hrp63sh28d2d.apps.googleusercontent.com";
+fetch('/api/config')
+  .then(res => res.json())
+  .then(config => {
+    const MOVIE_API_KEY = config.MOVIE_API_KEY;
+    const GOOGLE_CLIENT_ID = config.GOOGLE_CLIENT_ID;
+
+    // Use the keys here
+  })
+  .catch(err => {
+    console.error("Failed to load API keys", err);
+  });
+
 
 // Fetch configuration from server
 async function loadConfig() {
