@@ -1,41 +1,23 @@
 const express = require('express');
 const router = express.Router();
 
-// Google OAuth callback route
-router.post('/google/callback', async (req, res) => {
+// Firebase auth verification endpoint (if needed for server-side verification)
+router.post('/firebase/verify', async (req, res) => {
   try {
-    const { credential } = req.body;
+    const { token } = req.body;
 
-    if (!credential) {
-      return res.status(400).json({ success: false, error: 'No credential provided' });
+    if (!token) {
+      return res.status(400).json({ success: false, error: 'No token provided' });
     }
 
-    // Decode the JWT token (in production, verify with Google)
-    const payload = JSON.parse(Buffer.from(credential.split('.')[1], 'base64').toString());
-
-    // Validate required fields
-    if (!payload.sub || !payload.email || !payload.name) {
-      return res.status(400).json({ success: false, error: 'Invalid credential data' });
-    }
-
-    // Create or find user in your database
-    const user = {
-      id: payload.sub,
-      email: payload.email,
-      name: payload.name,
-      picture: payload.picture || ''
-    };
-
-    // Generate JWT token or session
-    const token = `jwt-${payload.sub}-${Date.now()}`; // Replace with actual JWT generation
-
+    // In a real app, you would verify the Firebase ID token here
+    // For now, we'll just acknowledge the request
     res.json({
       success: true,
-      user: user,
-      token: token
+      message: 'Token verified'
     });
   } catch (error) {
-    console.error('Google auth error:', error);
+    console.error('Firebase auth error:', error);
     res.status(500).json({ success: false, error: 'Authentication failed' });
   }
 });

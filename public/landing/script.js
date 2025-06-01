@@ -1,15 +1,10 @@
-fetch('/api/config')
-  .then(res => res.json())
-  .then(config => {
-    const MOVIE_API_KEY = config.MOVIE_API_KEY;
-    const GOOGLE_CLIENT_ID = config.GOOGLE_CLIENT_ID;
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 
-    // Use the keys here
-  })
-  .catch(err => {
-    console.error("Failed to load API keys", err);
-  });
-
+let MOVIE_API_KEY;
+let firebaseApp;
+let auth;
+let provider;
 
 // Fetch configuration from server
 async function loadConfig() {
@@ -17,7 +12,42 @@ async function loadConfig() {
     const response = await fetch('/api/config');
     const config = await response.json();
     MOVIE_API_KEY = config.MOVIE_API_KEY;
-    GOOGLE_CLIENT_ID = config.GOOGLE_CLIENT_ID;
+
+    // Initialize Firebase
+    firebaseApp = initializeApp(config.firebase);
+    auth = getAuth(firebaseApp);
+    provider = new GoogleAuthProvider();
+
+    // Set up auth state listener
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        document.getElementById('user-name').textContent = user.displayName || user.email;
+        document.getElementById('google-signin').style.display = 'none';
+        document.getElementById('user-info').style.display = 'flex';
+
+        // Sync mobile auth state
+        const mobileUserName = document.getElementById('mobile-user-name');
+        const mobileGoogleSignin = document.getElementById('mobile-google-signin');
+        const mobileUserInfo = document.getElementById('mobile-user-info');
+
+        if (mobileUserName) mobileUserName.textContent = user.displayName || user.email;
+        if (mobileGoogleSignin) mobileGoogleSignin.style.display = 'none';
+        if (mobileUserInfo) mobileUserInfo.style.display = 'flex';
+      } else {
+        document.getElementById('google-signin').style.display = 'block';
+        document.getElementById('user-info').style.display = 'none';
+        document.getElementById('user-name').textContent = '';
+
+        // Sync mobile auth state
+        const mobileUserName = document.getElementById('mobile-user-name');
+        const mobileGoogleSignin = document.getElementById('mobile-google-signin');
+        const mobileUserInfo = document.getElementById('mobile-user-info');
+
+        if (mobileUserName) mobileUserName.textContent = '';
+        if (mobileGoogleSignin) mobileGoogleSignin.style.display = 'block';
+        if (mobileUserInfo) mobileUserInfo.style.display = 'none';
+      }
+    });
   } catch (error) {
     console.error('Failed to load configuration:', error);
   }
@@ -98,7 +128,6 @@ function renderMovies(movies) {
     const title = movie.title;
     const desc = movie.overview || "No description available.";
     const img = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : '';
-    // Removed user rating and favorites
     const watchTime = movie.runtime ? `${movie.runtime} min` : 'Runtime N/A';
     const tmdbRating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
 
@@ -347,6 +376,30 @@ function closeModal() {
   if (focusedElementBeforeModal) focusedElementBeforeModal.focus();
 }
 
+// Firebase Auth functions
+async function signInWithGoogle() {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    console.log('User signed in:', user.displayName);
+  } catch (error) {
+    console.error('Error signing in:', error);
+  }
+}
+
+async function signOutUser() {
+  try {
+    await signOut(auth);
+    console.log('User signed out');
+  } catch (error) {
+    console.error('Error signing out:', error);
+  }
+}
+
+function checkAuthStatus() {
+  return auth.currentUser !== null;
+}
+
 // Event listeners
 modalOverlay.addEventListener('click', e => {
   if (e.target === modalOverlay) closeModal();
@@ -422,152 +475,6 @@ async function fetchMoviesByFilter(filter) {
   }
 }
 
-// Google Auth functions
-function initGoogleAuth() {
-  if (typeof google !== 'undefined' && google.accounts && GOOGLE_CLIENT_ID) {
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse,
-      auto_select: false,
-      cancel_on_tap_outside: true,
-      ux_mode: 'popup'
-    });
-
-    // Check if user is already signed in from localStorage
-    const userData = localStorage.getItem('googleUserData');
-    if (userData) {
-      const userInfo = JSON.parse(userData);
-      document.getElementById('user-name').textContent = userInfo.name;
-      document.getElementById('google-signin').style.display = 'none';
-      document.getElementById('user-info').style.display = 'flex';
-    }
-  } else {
-    console.error('Google Identity Services not loaded');
-  }
-}
-
-async function handleCredentialResponse(response) {
-  try {
-    // Send credential to backend for verification
-    const backendResponse = await fetch('/auth/google/callback', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ credential: response.credential })
-    });
-
-    if (backendResponse.ok) {
-      const data = await backendResponse.json();
-      const userInfo = data.user;
-
-      document.getElementById('user-name').textContent = userInfo.name;
-      document.getElementById('google-signin').style.display = 'none';
-      document.getElementById('user-info').style.display = 'flex';
-
-      // Store user data and token in localStorage
-      localStorage.setItem('googleUserData', JSON.stringify(userInfo));
-      localStorage.setItem('authToken', data.token);
-    } else {
-      console.error('Backend authentication failed');
-    }
-  } catch (error) {
-    console.error('Error processing Google sign-in:', error);
-    // Fallback to client-side processing
-    const userInfo = JSON.parse(atob(response.credential.split('.')[1]));
-    document.getElementById('user-name').textContent = userInfo.name;
-    document.getElementById('google-signin').style.display = 'none';
-    document.getElementById('user-info').style.display = 'flex';
-
-    localStorage.setItem('googleUserData', JSON.stringify({
-      name: userInfo.name,
-      email: userInfo.email,
-      picture: userInfo.picture
-    }));
-  }
-}
-
-function checkAuthStatus() {
-  const userData = localStorage.getItem('googleUserData');
-  return userData !== null;
-}
-
-document.getElementById('google-signin').addEventListener('click', () => {
-  if (typeof google !== 'undefined' && google.accounts) {
-    google.accounts.id.prompt((notification) => {
-      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        console.log('Google Sign-In was not displayed or was skipped');
-      }
-    });
-  } else {
-    console.error('Google Identity Services not available');
-  }
-});
-
-document.getElementById('logout-btn').addEventListener('click', () => {
-  if (typeof google !== 'undefined' && google.accounts) {
-    google.accounts.id.disableAutoSelect();
-  }
-  document.getElementById('google-signin').style.display = 'block';
-  document.getElementById('user-info').style.display = 'none';
-  document.getElementById('user-name').textContent = '';
-  localStorage.removeItem('googleUserData');
-});
-
-// Dark Mode functionality
-function initDarkMode() {
-  const darkModeToggle = document.getElementById('dark-mode-toggle');
-  const body = document.body;
-
-  // Check saved theme preference
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme === 'dark') {
-    body.classList.add('dark-mode');
-    darkModeToggle.classList.add('active');
-  }
-
-  // Toggle dark mode
-  darkModeToggle.addEventListener('click', function() {
-    body.classList.toggle('dark-mode');
-    darkModeToggle.classList.toggle('active');
-
-    // Save preference
-    const isDarkMode = body.classList.contains('dark-mode');
-    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-  });
-}
-
-
-// Initialize page when DOM is loaded
-document.addEventListener('DOMContentLoaded', async function() {
-  await loadConfig();
-  const toggleAdvanced = document.getElementById('toggle-advanced');
-  const advancedFilters = document.getElementById('advanced-filters');
-  const applyFilters = document.getElementById('apply-filters');
-
-  if (toggleAdvanced && advancedFilters) {
-    toggleAdvanced.addEventListener('click', () => {
-      advancedFilters.style.display = advancedFilters.style.display === 'none' ? 'block' : 'none';
-    });
-  }
-
-  if (applyFilters) {
-    applyFilters.addEventListener('click', applyAdvancedFilters);
-  }
-
-  initDarkMode();
-  
-  // Initialize movies and genres
-  fetchGenres();
-  fetchPopularMovies();
-  
-  // Initialize Google Auth after a small delay
-  setTimeout(() => {
-    initGoogleAuth();
-  }, 1000);
-});
-
-
 // Advanced filters
 function applyAdvancedFilters() {
   const year = document.getElementById('year-filter').value;
@@ -607,6 +514,30 @@ function hideMoviesLoader() {
   moviesLoader.style.display = 'none';
   moviesContainer.style.display = 'grid';
 }
+
+// Dark Mode functionality
+function initDarkMode() {
+  const darkModeToggle = document.getElementById('dark-mode-toggle');
+  const body = document.body;
+
+  // Check saved theme preference
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    body.classList.add('dark-mode');
+    darkModeToggle.classList.add('active');
+  }
+
+  // Toggle dark mode
+  darkModeToggle.addEventListener('click', function() {
+    body.classList.toggle('dark-mode');
+    darkModeToggle.classList.toggle('active');
+
+    // Save preference
+    const isDarkMode = body.classList.contains('dark-mode');
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+  });
+}
+
 // Hamburger menu functionality
 function initMobileMenu() {
   const hamburgerMenu = document.getElementById('hamburger-menu');
@@ -626,42 +557,14 @@ function initMobileMenu() {
 
     // Sync auth state between desktop and mobile
     const mobileGoogleSignin = document.getElementById('mobile-google-signin');
-    const mobileUserInfo = document.getElementById('mobile-user-info');
-    const mobileUserName = document.getElementById('mobile-user-name');
     const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
 
     if (mobileGoogleSignin) {
-      mobileGoogleSignin.addEventListener('click', () => {
-        document.getElementById('google-signin').click();
-      });
+      mobileGoogleSignin.addEventListener('click', signInWithGoogle);
     }
 
     if (mobileLogoutBtn) {
-      mobileLogoutBtn.addEventListener('click', () => {
-        document.getElementById('logout-btn').click();
-      });
-    }
-
-    // Sync user state
-    function syncMobileAuth() {
-      const desktopSignin = document.getElementById('google-signin');
-      const desktopUserInfo = document.getElementById('user-info');
-      const desktopUserName = document.getElementById('user-name');
-
-      if (mobileGoogleSignin && mobileUserInfo) {
-        mobileGoogleSignin.style.display = desktopSignin.style.display;
-        mobileUserInfo.style.display = desktopUserInfo.style.display;
-        if (mobileUserName) {
-          mobileUserName.textContent = desktopUserName.textContent;
-        }
-      }
-    }
-
-    // Observe changes to sync auth state
-    const observer = new MutationObserver(syncMobileAuth);
-    const desktopAuth = document.querySelector('.auth-section');
-    if (desktopAuth) {
-      observer.observe(desktopAuth, { childList: true, subtree: true, attributes: true });
+      mobileLogoutBtn.addEventListener('click', signOutUser);
     }
   }
 }
@@ -670,29 +573,30 @@ function initMobileMenu() {
 document.addEventListener('DOMContentLoaded', async function() {
   await loadConfig();
 
+  const toggleAdvanced = document.getElementById('toggle-advanced');
+  const advancedFilters = document.getElementById('advanced-filters');
+  const applyFilters = document.getElementById('apply-filters');
+
+  if (toggleAdvanced && advancedFilters) {
+    toggleAdvanced.addEventListener('click', () => {
+      advancedFilters.style.display = advancedFilters.style.display === 'none' ? 'block' : 'none';
+    });
+  }
+
+  if (applyFilters) {
+    applyFilters.addEventListener('click', applyAdvancedFilters);
+  }
+
   initDarkMode();
   initMobileMenu();
 
-  // Load some default movies on page load
-  setTimeout(() => {
-    fetchMovies({ category: 'popular' });
-  }, 1000);
+  // Initialize movies and genres
+  fetchGenres();
+  fetchPopularMovies();
 
-  // Initialize Google Auth with retry
-  let retryCount = 0;
-  const maxRetries = 5;
+  // Auth event listeners
+  document.getElementById('google-signin').addEventListener('click', signInWithGoogle);
+  document.getElementById('logout-btn').addEventListener('click', signOutUser);
 
-  function tryInitGoogleAuth() {
-    if (typeof google !== 'undefined' && google.accounts) {
-      initGoogleAuth();
-    } else if (retryCount < maxRetries) {
-      retryCount++;
-      setTimeout(tryInitGoogleAuth, 1000);
-    } else {
-      console.log('Google Identity Services could not be loaded after multiple attempts');
-    }
-  }
-
-  setTimeout(tryInitGoogleAuth, 1000);
   console.log('Movie Explorer script loaded');
 });

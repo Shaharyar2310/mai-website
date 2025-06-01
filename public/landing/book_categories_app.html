@@ -207,7 +207,14 @@
       </div>
     </footer>
 
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="/landing/book-script.js"></script>
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+      import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+      
+      window.firebaseConfig = {
+        // Firebase config will be loaded from server
+      };
+    </script>
+    <script src="/landing/book-script.js"></script>t.js"></script>
   </body>
 </html>
