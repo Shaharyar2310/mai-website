@@ -410,7 +410,6 @@ function initDarkMode() {
   });
 }
 
-// Removed favorites and ratings functionality
 
 // Reading time estimation (words per minute)
 const AVERAGE_WPM = 250;
@@ -460,11 +459,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   }, 1000);
 });
 
-
-
-
-
-// Removed rating functionality
 
 // Advanced filters for books
 function applyAdvancedFilters() {
